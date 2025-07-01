@@ -2,7 +2,7 @@
 services:
   maven-build:
     container_name: yudao-maven-build
-    image: eclipse-temurin:21-jre
+    image: maven:3.9.10-eclipse-temurin-17-alpine
     working_dir: /workspace
     volumes:
       - ../../:/workspace
@@ -27,7 +27,7 @@ services:
   # 可选：构建结果检查服务
   build-checker:
     container_name: yudao-build-checker
-    image: eclipse-temurin:21-jre
+    image: maven:3.9.10-eclipse-temurin-17-alpine
     working_dir: /workspace
     volumes:
       - ../../:/workspace
