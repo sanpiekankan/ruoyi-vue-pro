@@ -2,7 +2,7 @@
 services:
   maven-build:
     container_name: yudao-maven-build
-    image: maven:3.9.6-openjdk-17
+    image: eclipse-temurin:21-jre
     working_dir: /workspace
     volumes:
       - ../../:/workspace
@@ -27,7 +27,7 @@ services:
   # 可选：构建结果检查服务
   build-checker:
     container_name: yudao-build-checker
-    image: maven:3.9.6-openjdk-17
+    image: eclipse-temurin:21-jre
     working_dir: /workspace
     volumes:
       - ../../:/workspace
