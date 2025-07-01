@@ -1,0 +1,65 @@
+
+services:
+  maven-build:
+    container_name: yudao-maven-build
+    image: maven:3.9.6-openjdk-17
+    working_dir: /workspace
+    volumes:
+      - ../../:/workspace
+      - maven-cache:/root/.m2
+    environment:
+      - MAVEN_OPTS=-Xmx2048m -XX:MaxPermSize=512m
+      - JAVA_OPTS=-Xmx2048m
+    command: >
+      bash -c "
+        echo '开始构建芋道项目...'
+        echo '当前工作目录:' && pwd
+        echo '项目文件列表:' && ls -la
+        echo '开始执行 Maven 构建...'
+        mvn clean install -DskipTests -T 1C
+        echo '构建完成！'
+        echo '查看构建结果:'
+        find . -name '*.jar' -type f | grep -E '(yudao-server|target)' | head -10
+      "
+    networks:
+      - build-network
+
+  # 可选：构建结果检查服务
+  build-checker:
+    container_name: yudao-build-checker
+    image: maven:3.9.6-openjdk-17
+    working_dir: /workspace
+    volumes:
+      - ../../:/workspace
+    command: >
+      bash -c "
+        echo '=== 构建结果检查 ==='
+        echo '主要JAR文件:'
+        find . -name '*.jar' -path '*/target/*' | grep -v 'original' | sort
+        echo ''
+        echo '模块构建状态:'
+        for module in yudao-server yudao-module-system yudao-module-infra yudao-module-member yudao-module-mp yudao-module-pay yudao-module-mall; do
+          if [ -f \"./\$module/target/\$module-*.jar\" ]; then
+            echo \"✅ \$module: 构建成功\"
+          else
+            echo \"❌ \$module: 构建失败或未找到JAR文件\"
+          fi
+        done
+        echo ''
+        echo '总体构建大小:'
+        du -sh ./*/target/ 2>/dev/null | sort -hr || echo '无target目录'
+      "
+    depends_on:
+      - maven-build
+    networks:
+      - build-network
+    profiles:
+      - check
+
+volumes:
+  maven-cache:
+    driver: local
+
+networks:
+  build-network:
+    driver: bridge
