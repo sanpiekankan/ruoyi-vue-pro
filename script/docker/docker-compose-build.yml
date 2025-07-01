@@ -1,4 +1,6 @@
 
+#ocker run --rm -v "${PWD}:/workspace" -v maven-cache:/root/.m2 -w /workspace maven:3.9.10-eclipse-temurin-17-alpine mvn clean install -DskipTests -T 1C
+
 services:
   maven-build:
     container_name: yudao-maven-build
